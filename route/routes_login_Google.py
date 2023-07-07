@@ -25,7 +25,7 @@ flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
     scopes=["https://www.googleapis.com/auth/userinfo.profile",
             "https://www.googleapis.com/auth/userinfo.email", "openid"],
-    redirect_uri="https://botnoi-chatbot.onrender.com"
+    redirect_uri="https://botnoi-chatbot.onrender.com/google/callback"
 )
 
 def login_is_required(func):
