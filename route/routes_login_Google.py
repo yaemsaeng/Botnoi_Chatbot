@@ -67,7 +67,7 @@ async def callback(request: StarletteRequest):
         "name": id_info.get("name")
     }
 
-    frontend_path = "http://localhost:4200/"  # เปลี่ยนเป็น path ของ frontend ที่ต้องการ
+    frontend_path = "http://localhost:4200/login/callback"  # เปลี่ยนเป็น path ของ frontend ที่ต้องการ
     query_string = urlencode(query_params)
     redirect_url = f"{frontend_path}?" + query_string
 
