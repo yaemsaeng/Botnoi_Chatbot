@@ -2,9 +2,9 @@ from fastapi import APIRouter
 from model.models import User
 from config.db import collection_line
 
-app = APIRouter()
+lineRouter = APIRouter()
 
-@app.post("/post", tags=["user"])
+@lineRouter.post("/post", tags=["user"])
 async def post_users(user: User):
     collection_line.insert_one(dict(user))
     return {"status": "OK"}
