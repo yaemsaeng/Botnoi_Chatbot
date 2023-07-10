@@ -1,6 +1,10 @@
 from typing import Optional
 from pydantic import BaseModel
 
+class line_user(BaseModel):
+    userId: str
+    displayName: str
+
 class insert_base64(BaseModel):
     base64 : Optional[str]
 
