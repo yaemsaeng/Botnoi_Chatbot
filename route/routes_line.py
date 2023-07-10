@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from model.models import User
+from model.models import line_user
 from config.db import collection_line
 
 lineRouter = APIRouter()
