@@ -11,9 +11,11 @@ stripe.api_key = "sk_live_51NTdHJFm689lJVNLXowcgkh4Mr9Vhh3G10K99Apbla7vUCBSfFwT3
 @app.post("/create-checkout-session")
 async def create_checkout_session(request: Request):
     data = await request.json()
-
-    # user_id = data["user_id"]
+    
     google_id = request.session.get("google_id")
+    if google_id is None:
+        return {"error": "User is not logged in"}
+        
     checkout_session = stripe.checkout.Session.create(
         payment_method_types=["card"],
         mode="subscription",
