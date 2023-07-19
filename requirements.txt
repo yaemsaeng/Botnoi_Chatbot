@@ -17,4 +17,3 @@ wraps
 pyjwt==1.7.1
 
 stripe
-json
