@@ -1,8 +1,8 @@
 import stripe
 from fastapi import FastAPI, Request
 import json
-from fastapi.responses import RedirectResponse
 from starlette.middleware.sessions import SessionMiddleware
+from fastapi.responses import RedirectResponse
 
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="dVu9jfC1PPVGRkq-X5nKaP_vDHC63CxQ2K4W0QVpFJo")
@@ -12,11 +12,12 @@ stripe.api_key = "sk_live_51NTdHJFm689lJVNLXowcgkh4Mr9Vhh3G10K99Apbla7vUCBSfFwT3
 @app.post("/create-checkout-session")
 async def create_checkout_session(request: Request):
     data = await request.json()
-    
+
     google_id = request.session.get("google_id")
     if google_id is None:
+        # สร้างการตอบกลับว่าไม่ได้เข้าสู่ระบบหรือข้อผิดพลาดอื่น ๆ
         return {"error": "User is not logged in"}
-        
+    
     checkout_session = stripe.checkout.Session.create(
         payment_method_types=["card"],
         mode="subscription",
@@ -28,7 +29,8 @@ async def create_checkout_session(request: Request):
         success_url='http://127.0.0.1:8000/success',
         cancel_url='http://127.0.0.1:8000/cancel',
     )
-    return RedirectResponse(checkout_session["url"])
+    # return RedirectResponse(checkout_session["url"])
+    return {"sessionId": checkout_session["id"], 'message': checkout_session["url"]}
 
 # @payment_app.post("/create_stripe_test", tags=["payments_service"])
 # #def check_qrcode(user_id: str = Depends(oauth2_utils.require_user)):
