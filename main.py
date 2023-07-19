@@ -3,6 +3,7 @@ from route.routes import Router
 from route.routes_line import lineRouter
 from fastapi.middleware.cors import CORSMiddleware
 from route.routes_login_Google import app as routes_app
+from route.purchase import app as routes_purchase
 app = FastAPI()
 
 
@@ -22,3 +23,4 @@ app.add_middleware(
 app.include_router(Router)
 app.include_router(lineRouter)
 app.mount("", routes_app)
+app.mount("", routes_purchase)
