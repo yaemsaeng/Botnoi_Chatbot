@@ -1,6 +1,7 @@
 import stripe
 from fastapi import FastAPI, Request
 import json
+from fastapi.responses import RedirectResponse
 from starlette.middleware.sessions import SessionMiddleware
 
 app = FastAPI()
@@ -27,7 +28,7 @@ async def create_checkout_session(request: Request):
         success_url='http://127.0.0.1:8000/success',
         cancel_url='http://127.0.0.1:8000/cancel',
     )
-    return {"sessionId": checkout_session["id"], 'message': checkout_session["url"]}
+    return RedirectResponse(checkout_session["url"])
 
 # @payment_app.post("/create_stripe_test", tags=["payments_service"])
 # #def check_qrcode(user_id: str = Depends(oauth2_utils.require_user)):
