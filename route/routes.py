@@ -35,7 +35,7 @@ async def create_upload_file(data: insert_base64):
     
     return {'message': 'Upload successful', 'url': url}
 
-@Router.get("/chatgptresponse", tags=["ChatBot"])
+@Router.get("/chat_gpt_response", tags=["ChatBot"])
 async def get_chat_response(query: str, customer_id: str):
     url = f"https://mekhav-2e2xbtpg2q-uc.a.run.app/chatgptresponse?query={query}&customer_id={customer_id}"
     response = requests.get(url)
