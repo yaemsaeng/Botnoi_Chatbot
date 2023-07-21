@@ -13,11 +13,11 @@ cred = credentials.Certificate("./firebase/chatbotnoipdf-firebase-adminsdk-kqkcv
 firebase_admin.initialize_app(cred, {'storageBucket': 'chatbotnoipdf.appspot.com'})
 bucket = storage.bucket()
 
-# @Router.get("/")
-# def read_root():
-#     return  "Hello Welcome to my Chatbot PDF"
+@Router.get("/")
+def read_root():
+    return  "Hello Welcome to my Chatbot PDF"
 
-@Router.post("/Upload_PDF_base64", tags=["Upload PDF"])
+@Router.post("/upload_pdf_base64", tags=["upload pdf"])
 async def create_upload_file(data: insert_base64):
     # ดีโค้ดไฟล์จาก base64 เป็นไฟล์ PDF
     file_base64 = data.base64
@@ -35,12 +35,33 @@ async def create_upload_file(data: insert_base64):
     
     return {'message': 'Upload successful', 'url': url}
 
-@Router.get("/chatgptresponse", tags=["ChatBot"])
-async def get_chat_response(query: str, customer_id: str):
+@Router.get("/chat_gpt_response", tags=["chat_bot"])
+async def get_chat_response(chat_name : str ,query: str, customer_id: str):
     url = f"https://mekhav-2e2xbtpg2q-uc.a.run.app/chatgptresponse?query={query}&customer_id={customer_id}"
     response = requests.get(url)
     json_data = response.json()
+    
+    # สร้างเวลาปัจจุบัน
+    current_timestamp = datetime.now().isoformat()
+    # ส่วนที่ต้องการเพิ่ม
+    chat_history_update = {
+        "message_user":query, #เก็บเป็นค่า input ของผู้ใช้
+        "message_bot": json_data, #เก็บเป็นค่าที่ chat ตอบกับมา
+        "timestamp": current_timestamp
+    }
+    document = collection.find_one({"chat_name": chat_name})
+    if document:#ถ้ามีข้อมูล
+        # หาดัชนีใหม่ที่ต้องการสร้าง
+        new_index = str(len(document.get("chat_history", {})))
+
+        # อัปเดตเอกสาร
+        result = collection.update_one(
+            {"chat_name": chat_name},
+            {"$set": {"chat_history." + new_index: chat_history_update}}
+        )
+    
     return json_data
+
 
 @Router.get("/all_chat_name", tags=["all_chat_name"])
 async def all_chat_histoy(customer_id: str):
@@ -70,38 +91,38 @@ async def all_chat_histoy(customer_id: str,chat_name:str):
 
     return show_chat_history
 
-@Router.post("/upload_NewChat", tags=["upload_NewChat"])
+@Router.post("/upload_new_chat", tags=["upload_new_chat"])
 async def upload_data(data: insert_chat_name):
     collection.insert_one(dict(data))
     
 
-@Router.post("/insert_Chat_history", tags=["insert_Chat_history"])
-async def insert_Chat_history(chat_name:str,message_user:str,message_bot) :
+# @Router.post("/insert_chat_history", tags=["insert_chat_history"])
+# async def insert_Chat_history(chat_name:str,message_user:str,message_bot) :
 
-    # สร้างเวลาปัจจุบัน
-    current_timestamp = datetime.now().isoformat()
-    # ส่วนที่ต้องการเพิ่ม
-    chat_history_update = {
-        "message_user": message_user,
-        "message_bot": message_bot,
-         "timestamp": current_timestamp
-    }
-    document = collection.find_one({"chat_name": chat_name})
-    if document:#ถ้ามีข้อมูล
-        # หาดัชนีใหม่ที่ต้องการสร้าง
-        new_index = str(len(document.get("chat_history", {})))
+#     # สร้างเวลาปัจจุบัน
+#     current_timestamp = datetime.now().isoformat()
+#     # ส่วนที่ต้องการเพิ่ม
+#     chat_history_update = {
+#         "message_user": message_user, #เก็บเป็นค่า input ของผู้ใช้
+#         "message_bot": message_bot, #เก็บเป็นค่าที่ chat ตอบกับมา
+#         "timestamp": current_timestamp
+#     }
+#     document = collection.find_one({"chat_name": chat_name})
+#     if document:#ถ้ามีข้อมูล
+#         # หาดัชนีใหม่ที่ต้องการสร้าง
+#         new_index = str(len(document.get("chat_history", {})))
 
-        # อัปเดตเอกสาร
-        result = collection.update_one(
-            {"chat_name": chat_name},
-            {"$set": {"chat_history." + new_index: chat_history_update}}
-        )
+#         # อัปเดตเอกสาร
+#         result = collection.update_one(
+#             {"chat_name": chat_name},
+#             {"$set": {"chat_history." + new_index: chat_history_update}}
+#         )
 
-    # ตรวจสอบว่ามีการอัปเดตสำเร็จหรือไม่
-    if result.modified_count == 1:
-        return {"message": "Chat history updated"}
-    else:
-        return {"message": "Chat not found"}
+    # # ตรวจสอบว่ามีการอัปเดตสำเร็จหรือไม่
+    # if result.modified_count == 1:
+    #     return {"message": "Chat history updated"}
+    # else:
+    #     return {"message": "Chat not found"}
 
 
 @Router.put("/update_chat_name", tags=["data_update"])
@@ -119,4 +140,5 @@ async def update_chat_name(data:update_chat_name,customer_id: str,chat_name:str)
 async def delete(customer_id: str,chat_name:str):
     collection.find_one_and_delete({"customer_id": customer_id, "chat_name": chat_name})
     
+
 
