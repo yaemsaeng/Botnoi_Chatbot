@@ -51,7 +51,7 @@ async def create_upload_file(data: insert_base64,customer_id:str,chat_name):
     
 
 @Router.get("/chat_gpt_response", tags=["chat_bot"])
-async def get_chat_response(chat_name : str ,query: str, customer_id: str):
+async def get_chat_response(chat_id:int ,chat_name : str ,query: str, customer_id: str):
     url = f"https://mekhav-2e2xbtpg2q-uc.a.run.app/chatgptresponse?query={query}&customer_id={customer_id}"
     response = requests.get(url)
     json_data = response.json()
@@ -65,14 +65,14 @@ async def get_chat_response(chat_name : str ,query: str, customer_id: str):
         "message_bot": json_data, #เก็บเป็นค่าที่ chat ตอบกับมา
         "timestamp": current_timestamp
     }
-    document = collection.find_one({"chat_name": chat_name})
+    document = collection.find_one({"customer_id": customer_id,"chat_id":chat_id,"chat_name": chat_name})
     if document:#ถ้ามีข้อมูล
         # หาดัชนีใหม่ที่ต้องการสร้าง
         new_index = str(len(document.get("chat_history", {})))
 
         # อัปเดตเอกสาร
         result = collection.update_one(
-            {"chat_name": chat_name},
+            {"customer_id": customer_id,"chat_id":chat_id,"chat_name": chat_name},
             {"$set": {"chat_history." + new_index: chat_history_update}}
         )
     
@@ -95,7 +95,7 @@ async def all_chat_histoy(customer_id: str):
 
 
 @Router.get("/show_chat_history", tags=["show_chat_history"])
-async def all_chat_histoy(customer_id: str,chat_id:str,chat_name:str):
+async def all_chat_histoy(customer_id: str,chat_id:int,chat_name:str):
     result = collection.find({"customer_id": customer_id, "chat_id":chat_id, "chat_name": chat_name})
 
     show_chat_history = []
@@ -110,9 +110,9 @@ async def all_chat_histoy(customer_id: str,chat_id:str,chat_name:str):
 async def update_chat_name(data:update_chat_name,customer_id: str,chat_id: int,chat_name:str):
     collection.find_one_and_update(
         {
-          "customer_id": customer_id,
-           "chat_id":chat_id,
-           "chat_name": chat_name
+            "customer_id": customer_id,
+            "chat_id":chat_id,
+            "chat_name": chat_name
         }, 
         {
          "$set": dict(data)
@@ -120,6 +120,6 @@ async def update_chat_name(data:update_chat_name,customer_id: str,chat_id: int,c
 
 @Router.delete("/delete" ,tags=["data_delete"])
 async def delete(customer_id: str,chat_id:int,chat_name:str):
-    collection.find_one_and_delete({"customer_id": customer_id,"chat_id":chat_id, "chat_name": chat_name})
+    collection.find_one_and_delete({"customer_id": customer_id, "chat_name": chat_name,"chat_id":chat_id})
     
 
