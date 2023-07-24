@@ -17,7 +17,7 @@ class update_chat_name(BaseModel):
     class Config:
         schema_extra = {
             "example" : {
-                "modify_chat_name":"input_new_chat_name",
+                "chat_name":"input_new_chat_name",
             }
         }
     
