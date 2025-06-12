@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from route.routes import Router
-from route.routes_line import lineRouter
 from fastapi.middleware.cors import CORSMiddleware
 from route.routes_login_Google import app as routes_app
 from route.purchase import app as routes_purchase
