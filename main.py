@@ -21,6 +21,5 @@ app.add_middleware(
 )
 
 app.include_router(Router)
-app.include_router(lineRouter)
 app.mount("", routes_app)
 app.mount("", routes_purchase)
