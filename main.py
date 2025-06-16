@@ -21,4 +21,3 @@ app.add_middleware(
 
 app.include_router(Router)
 app.mount("", routes_app)
-app.mount("", routes_purchase)
