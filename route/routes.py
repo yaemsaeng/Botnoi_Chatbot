@@ -34,7 +34,10 @@ async def create_upload_file(data: insert_base64,customer_id:str,chat_name:str):
 
     url = blob.public_url
 
-    get_next_chat_id = collection.count_documents({}) + 1 ## เป็นการนับจำนวน documents ใน database เพื่อให้ chat id สามารถ generat ขึ้นมาเองได้โดยไม่ต้อง
+    ## เป็นการนับจำนวน documents ใน database เพื่อให้ chat id สามารถ generat ขึ้นมาเองได้โดยไม่ต้อง
+    count = collection.count_documents({})
+    get_next_chat_id = str(count + 1)
+     
 
     new_chat = {
         "customer_id": customer_id,
