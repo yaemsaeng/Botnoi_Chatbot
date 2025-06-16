@@ -51,7 +51,7 @@ async def create_upload_file(data: insert_base64,customer_id:str,chat_name:str):
     
 
 @Router.get("/chat_gpt_response", tags=["chat_bot"])
-async def get_chat_response(chat_id:int ,chat_name : str ,query: str, customer_id: str):
+async def get_chat_response(chat_id:str ,chat_name : str ,query: str, customer_id: str):
     url = f"https://mekhav-2e2xbtpg2q-uc.a.run.app/chatgptresponse?query={query}&customer_id={customer_id}"
     response = requests.get(url)
     json_data = response.json()
@@ -107,7 +107,7 @@ async def all_chat_histoy(customer_id: str,chat_id:str,chat_name:str):
     return show_chat_history
 
 @Router.put("/update_chat_name", tags=["data_update"])
-async def update_chat_name(data:update_chat_name,customer_id: str,chat_id: int,chat_name:str):
+async def update_chat_name(data:update_chat_name,customer_id: str,chat_id: str,chat_name:str):
     collection.find_one_and_update(
         {
             "customer_id": customer_id,
@@ -119,7 +119,7 @@ async def update_chat_name(data:update_chat_name,customer_id: str,chat_id: int,c
         })
 
 @Router.delete("/delete" ,tags=["data_delete"])
-async def delete(customer_id: str,chat_id:int,chat_name:str):
+async def delete(customer_id: str,chat_id:str,chat_name:str):
     collection.find_one_and_delete({"customer_id": customer_id, "chat_name": chat_name,"chat_id":chat_id})
     
 
