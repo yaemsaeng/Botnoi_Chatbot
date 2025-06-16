@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from route.routes import Router
 from fastapi.middleware.cors import CORSMiddleware
 from route.routes_login_Google import app as routes_app
-from route.purchase import app as routes_purchase
 from config.db import collection  # เชื่อมต่อ MongoDB จากไฟล์ db.py
 
 app = FastAPI()
