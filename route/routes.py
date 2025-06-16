@@ -111,7 +111,7 @@ async def all_chat_histoy(customer_id: str,chat_id:str,chat_name:str):
 
 @Router.put("/update_chat_name", tags=["data_update"])
 async def update_chat_name(data:update_chat_name,customer_id: str,chat_id: str,chat_name:str):
-    collection.find_one_and_update(
+    result = collection.find_one_and_update(
         {
             "customer_id": customer_id,
             "chat_id":chat_id,
@@ -120,6 +120,10 @@ async def update_chat_name(data:update_chat_name,customer_id: str,chat_id: str,c
         {
          "$set": dict(data)
         })
+    if result:
+        return {"message": "Update successful"}
+    else:
+        return {"message": "No matching document found"}
 
 @Router.delete("/delete" ,tags=["data_delete"])
 async def delete(customer_id: str,chat_id:str,chat_name:str):
