@@ -1,13 +1,22 @@
-from fastapi import APIRouter, Request, HTTPException, status
+from fastapi import APIRouter, FastAPI, Depends, HTTPException, status, Request
 from fastapi.responses import RedirectResponse
 from google_auth_oauthlib.flow import Flow
-from google.oauth2 import id_token
 import google.auth.transport.requests
+from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware import Middleware
+from starlette.requests import Request as StarletteRequest
+from google.oauth2 import id_token
+from google.auth.transport import requests
+import requests
+import os
+from pathlib import Path
 from urllib.parse import urlencode
-from config.db import collection_account
-from functools import wraps
 
+from config.db import collection_account
+
+app = FastAPI()
 RouterGoogle = APIRouter()
+app.add_middleware(SessionMiddleware, secret_key="dVu9jfC1PPVGRkq-X5nKaP_vDHC63CxQ2K4W0QVpFJo", session_cookie="user_session")
 
 client_secrets_file = "client_secret.json"
 
@@ -16,7 +25,7 @@ flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
     scopes=["https://www.googleapis.com/auth/userinfo.profile",
             "https://www.googleapis.com/auth/userinfo.email", "openid"],
-    redirect_uri="http://localhost:8000/google/callback"  # เปลี่ยนเป็น backend url ของคุณ
+    redirect_uri="https://botnoi-chatbot.onrender.com/google/callback"
 )
 
 def login_is_required(func):
@@ -27,21 +36,22 @@ def login_is_required(func):
         return await func(request, *args, **kwargs)
     return wrapper
 
-@RouterGoogle.get("/login")
-async def login(request: Request):
+@app.get("/google/login")
+async def login(request: StarletteRequest):
     authorization_url, state = flow.authorization_url()
     request.session["state"] = state
     return RedirectResponse(authorization_url)
 
-@RouterGoogle.get("/callback")
-async def callback(request: Request):
+@app.get("/google/callback")
+async def callback(request: StarletteRequest):
     flow.fetch_token(authorization_response=str(request.url))
 
-    if not request.session.get("state") == request.query_params.get("state"):
+    if not request.session["state"] == request.query_params["state"]:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="State does not match!")
 
     credentials = flow.credentials
-    token_request = google.auth.transport.requests.Request()
+    request_session = requests.Session()
+    token_request = google.auth.transport.requests.Request(session=request_session)
 
     id_info = id_token.verify_oauth2_token(
         id_token=credentials.id_token,
@@ -52,16 +62,18 @@ async def callback(request: Request):
     request.session["google_id"] = id_info.get("sub")
     request.session["name"] = id_info.get("name")
 
-    # เก็บข้อมูลผู้ใช้ในฐานข้อมูล ถ้ายังไม่มี
-    if collection_account.find_one({"sub": id_info.get("sub")}) is None:
-        collection_account.insert_one(id_info)
-
-    # ส่ง redirect ไปหน้า frontend login callback พร้อม query params
-    frontend_path = "http://localhost:4200/login/callback"  # เปลี่ยนเป็น URL frontend ของคุณ
     query_params = {
         "google_id": id_info.get("sub"),
         "name": id_info.get("name")
     }
-    redirect_url = f"{frontend_path}?" + urlencode(query_params)
 
+    frontend_path = "http://localhost:4200/login/callback"  # เปลี่ยนเป็น path ของ frontend ที่ต้องการ
+    query_string = urlencode(query_params)
+    redirect_url = f"{frontend_path}?" + query_string
+
+
+    if(collection_account.find_one({"sub": id_info.get("sub")}) is None):
+        user = collection_account.insert_one(id_info)
+        
     return RedirectResponse(redirect_url)
+
