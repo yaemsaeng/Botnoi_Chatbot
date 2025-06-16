@@ -18,7 +18,7 @@ def read_root():
     return  "Hello Welcome to my Chatbot PDF"
 
 @Router.post("/insert_new_chat", tags=["new chat"])
-async def create_upload_file(data: insert_base64,customer_id:str,chat_name:str):
+async def create_upload_file(data: insert_base64,customer_id:str,chat_name:str,chat_id:str):
     # ดีโค้ดไฟล์จาก base64 เป็นไฟล์ PDF
     file_base64 = data.base64
     file_data = base64.b64decode(file_base64)
@@ -41,7 +41,7 @@ async def create_upload_file(data: insert_base64,customer_id:str,chat_name:str):
 
     new_chat = {
         "customer_id": customer_id,
-        "chat_id" : get_next_chat_id,
+        "chat_id" : chat_id,
         "chat_name": chat_name,
         "chat_history": {},
         "pdf_url": url,
