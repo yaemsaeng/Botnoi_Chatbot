@@ -119,7 +119,7 @@ async def update_chat_name(data:update_chat_name,customer_id: str,chat_id: str,c
         })
 
 @Router.delete("/delete" ,tags=["data_delete"])
-async def delete(customer_id: str,chat_id:int,chat_name:str):
+async def delete(customer_id: str,chat_id:str,chat_name:str):
     result = collection.find_one_and_delete({"customer_id": customer_id, "chat_name": chat_name,"chat_id":chat_id})
     if result:
         return {"message": "Delete successful"}
