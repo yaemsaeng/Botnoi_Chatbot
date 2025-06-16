@@ -95,7 +95,7 @@ async def all_chat_histoy(customer_id: str):
 
 
 @Router.get("/show_chat_history", tags=["show_chat_history"])
-async def all_chat_histoy(customer_id: str,chat_id:int,chat_name:str):
+async def all_chat_histoy(customer_id: str,chat_id:str,chat_name:str):
     result = collection.find({"customer_id": customer_id, "chat_id":chat_id, "chat_name": chat_name})
 
     show_chat_history = []
